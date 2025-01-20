@@ -1,0 +1,25 @@
+# Directories
+.DS_Store
+.idea
+__pycache__
+build
+dist
+.venv
+
+cmake-build-*
+cmake-release-*
+
+doc/xml
+doc/html
+doc/latex/
+doc/_build
+doc/Doxyfile.bak
+
+target
+
+# Files
+MANIFEST
+*.db
+*.h5
+*.xdmf
+*.png
