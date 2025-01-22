@@ -1,11 +1,165 @@
+//
+// file: tecplot.lalrpop
+// author: L. Nagy
+//
+
 use std::str::FromStr;
+use std::vec::Vec;
+use std::string::String;
+
+use crate::tecplot_parser::{
+    Document, FirstZone, Zone
+};
 
 grammar;
 
-pub Term: i32 = {
-    <n:Num> => n,
-    "(" <t:Term> ")" => t,
+// A string is defined as a limited list of characters (alpha-numeric along with
+// '_', ' ' & '.') delimited by a start/end '"' caracter.
+pub Lit: String = <l:r#""[a-zA-Z0-9_ \.]*""#> => l.to_string();
+
+// An integer is a sequence of characters '0' to '9', we accept integers with
+// an arbitrary number of preceding zeros as valid and equivalent for example
+// 09 == 00009 == 9).
+pub Integer: i64 = <s:r#"[0-9]+"#> => i64::from_str(s).unwrap();
+
+// A floating point value contains a decimal point and optional exponent.
+pub Float: f64 = <s:r#"[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?"#> => f64::from_str(s).unwrap();
+
+// A list of String objects (see above).
+pub LitList: Vec<String> = {
+    <head:Lit> "," <tail:LitList> => {
+        let mut list = vec![head];
+        list.extend(tail);
+        list
+    },
+    <value:Lit> => vec![value],
 };
 
-Num: i32 =
-    <s:r"[0-9]+"> => i32::from_str(s).unwrap();
+// A list of Integer objects (see above).
+pub IntegerList: Vec<i64> = {
+    <head: Integer> <tail: IntegerList> => {
+        let mut list = vec![head];
+        list.extend(tail);
+        list
+    },
+    <value: Integer> => vec![value],
+};
+
+// A list of Float objects (see above).
+pub FloatList: Vec<f64> = {
+    <head: Float> <tail: FloatList> => {
+        let mut list = vec![head];
+        list.extend(tail);
+        list
+    },
+    <value: Float> => vec![value],
+};
+
+// A list of Zone objects (see below)
+pub ZoneList: Vec<Zone> = {
+    <head: Zone> <tail: ZoneList> => {
+        let mut list = vec![head];
+        list.extend(tail);
+        list
+    },
+    <value: Zone> => vec![value],
+};
+
+// A rule to match an optional list of Zones.
+pub OptionalZoneList: Option<Vec<Zone>> = {
+    <zl:ZoneList> => Some(zl),
+                  => None,
+};
+
+// A rule to match a tecoplot document -- tecplot documents can be extrememly
+// complicated with multiple zones and geometries, howerver MERRILL documents
+// are fairly simple and consist of
+//      1) a title,
+//      2) variable names -- these are the names of vertex and field components,
+//      3) a first zone -- holding geometric and field data,
+//      4) an optional list of subsequent zones which contain just field data.
+pub Document: Document = {
+    <t:Title> <v:Variables> <fz:FirstZone> <zs:OptionalZoneList> => Document{title: t, variables: v, first_zone: fz, zones: zs}
+};
+
+// A rule to match a title, which is a string.
+pub Title: String = {
+    "TITLE" "=" <t:Lit>  => t.to_string()
+};
+
+// A rule to match variables, which is a list of strings.
+pub Variables: Vec<String> = {
+    "VARIABLES" "=" <lit_list:LitList> => lit_list
+};
+
+// A rule to match the first zone which is a title, the number of vertices,
+// the number of elements, block information, element type information,
+// variable metadata (i.e. which variables are nodewise/elementwise), a
+// big list of floats and a big list of integers.
+pub FirstZone: FirstZone = {
+    <t:ZoneWithTitle> ","? <nv:NValue> ","? <ne:EValue> ","? <feb:FEBlock> ","? <et:ElementType> ","? <vl:VarLocation> <fl:FloatList> <il:IntegerList>
+        => FirstZone{
+             title:t,
+             no_of_vertices: nv,
+             no_of_elements: ne,
+             float_list: fl,
+             integer_list: il,
+           }
+};
+
+// A rule to match a zone which is a title, the number of vertices, the number
+// of elements, block information, element type information, variable metadata
+// on which variables are share, metadata on which zone contains shared variable
+// values, variable metadata (i.e. which variables are nodewise/elementwise) and
+// a big list of floats (the vector field component values).
+pub Zone: Zone = {
+    <t:ZoneWithTitle> ","? <nv:NValue> ","? <ne:EValue> ","? <feb:FEBlock> ","? <et:ElementType> ","? <vsl:VarShareList> ","? <csz:ConnectivityShareZone> ","? <vl:VarLocation> <fl:FloatList>
+        => Zone{
+            title: t,
+            no_of_vertices: nv,
+            no_of_elements: ne,
+            float_list: fl,
+        }
+};
+
+// A rule to match the keyword ZONE and a title.
+pub ZoneWithTitle: String = {
+    "ZONE" "T" "=" <t:Lit> => t.to_string()
+};
+
+// A rule to match the keyword N and an integer.
+pub NValue: i64 = {
+    "N" "=" <v:Integer> => v
+};
+
+// A rule to match the keyword E and an integer.
+pub EValue: i64 = {
+    "E" "=" <v:Integer> => v
+};
+
+// A rule to math the keyword FEBlock.
+pub FEBlock: String = {
+    "F" "=" "FEBLOCK" => "FEBLOCK".to_string()
+};
+
+// A rule to match the keyword ET along with its type (which is always
+// TETRAHEDRON in MERRILL).
+pub ElementType: String = {
+    "ET" "=" "TETRAHEDRON" => "TETRAHEDRON".to_string()
+};
+
+// A rule to match the keyword VARLOCATION.
+pub VarLocation: String = {
+    "VARLOCATION" "=" "(" <vl:r#"\[[0-9]+\]=CELLCENTERED"#> ")" => vl.to_string()
+};
+
+// A rule to match the keyword VARSHARELIST.
+// TODO: 'vsl' match needs fixing - this is EXACT for MERRILL and *WILL* fail!
+pub VarShareList: String = {
+    "VARSHARELIST" "=" "(" <vsl:r#"\[1-3,7\]=1"#> ")" => vsl.to_string()
+};
+
+// A rule to match the keyword CONNECTIVITYSHAREZONE.
+pub ConnectivityShareZone: i64 = {
+    "CONNECTIVITYSHAREZONE" "=" <z:Integer> => z
+};
