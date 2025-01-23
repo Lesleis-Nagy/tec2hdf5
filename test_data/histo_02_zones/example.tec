@@ -1,4 +1,4 @@
- TITLE = "myhyst"
+ TITLE = "Histo two zones"
  VARIABLES = "X","Y","Z","Mx","My","Mz", "SD"
  ZONE T="400.0000 mT",  N=70,  E=200
  F=FEBLOCK, ET=TETRAHEDRON, VARLOCATION=([7]=CELLCENTERED)

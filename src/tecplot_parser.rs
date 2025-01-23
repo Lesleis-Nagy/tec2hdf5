@@ -68,19 +68,21 @@ pub struct Zone {
 
 #[test]
 fn test_title() {
-    let result =  tecplot::TitleParser::new().parse("TITLE = \"My test title\"")
+    let result = tecplot::TitleParser::new()
+        .parse("TITLE = \"My test title\"")
         .expect("Parse failed");
-    let expected : String = "\"My test title\"".to_string();
+    let expected: String = "\"My test title\"".to_string();
     assert_eq!(result, expected);
 }
 
 #[test]
 fn test_variables() {
-    let result =  tecplot::VariablesParser::new().parse("VARIABLES = \"x\", \"y\", \"z\"")
+    let result = tecplot::VariablesParser::new()
+        .parse("VARIABLES = \"x\", \"y\", \"z\"")
         .expect("Parse failed");
     let expected = vec!["\"x\"", "\"y\"", "\"z\""];
     assert_eq!(result.len(), expected.len());
-    for i in 0 .. result.len() {
+    for i in 0..result.len() {
         assert_eq!(result[i], expected[i]);
     }
 }
@@ -89,34 +91,71 @@ fn test_variables() {
 fn test_document() {
     let file_path = "/Users/lnagy2/Projects/tec2hdf5/examples/myhyst.tec";
     let file_contents = fs::read_to_string(file_path).expect("Failed to read tecplot file");
-    let result = tecplot::DocumentParser::new().parse(&file_contents).expect("Parse failed");
+    let result = tecplot::DocumentParser::new()
+        .parse(&file_contents)
+        .expect("Parse failed");
+
     let expected_title: String = "\"myhyst\"".to_string();
-    let expected_variables = vec!["\"X\"", "\"Y\"", "\"Z\"", "\"Mx\"", "\"My\"", "\"Mz\"", "\"SD\""];
     assert_eq!(result.title, expected_title);
+
+    let expected_variables = vec![
+        "\"X\"", "\"Y\"", "\"Z\"", "\"Mx\"", "\"My\"", "\"Mz\"", "\"SD\"",
+    ];
     assert_eq!(result.variables.len(), expected_variables.len());
-    for i in 0 .. result.variables.len() {
+    for i in 0..result.variables.len() {
         assert_eq!(result.variables[i], expected_variables[i]);
     }
-    println!("the title of the document: {}", result.title);
-    println!("the title of the first zone: {}", result.first_zone.title);
-    println!("no of vertices in the first zone: {}", result.first_zone.no_of_vertices);
-    println!("no of elements in the first zone: {}", result.first_zone.no_of_elements);
-    println!("number of floats in the first zone: {}", result.first_zone.float_list.len());
-    println!("number of integers in the first zone: {}", result.first_zone.integer_list.len());
 
-    match result.zones {
-        Some(z) => {
-            println!("There is {} additional zone", z.len());
-            for (index, zone) in z.iter().enumerate() {
-                println!("Zone {}: {}", index, zone.title);
-                println!("no. of vertices is {}", zone.no_of_vertices);
-                println!("no. of elements is {}", zone.no_of_elements);
-                println!("no. of floats is {}", zone.float_list.len());
-            }
+    let expected_first_zone_title: String = "\"400.0000 mT\"".to_string();
+    assert_eq!(result.first_zone.title, expected_first_zone_title);
 
-        },
-        None => {
-            println!("There are no additional zones");
-        },
-    }
+    let expected_first_zone_no_of_vertices: i64 = 70;
+    assert_eq!(
+        result.first_zone.no_of_vertices,
+        expected_first_zone_no_of_vertices
+    );
+
+    let expected_first_zone_no_of_elements: i64 = 200;
+    assert_eq!(
+        result.first_zone.no_of_elements,
+        expected_first_zone_no_of_elements
+    );
+
+    let expected_first_zone_float_list_len: usize = 420;
+    assert_eq!(
+        result.first_zone.float_list.len(),
+        expected_first_zone_float_list_len
+    );
+
+    let expected_first_zone_integer_list_len: usize = 1000;
+    assert_eq!(
+        result.first_zone.integer_list.len(),
+        expected_first_zone_integer_list_len
+    );
+
+    let additional_zones = result.zones.unwrap();
+
+    let expected_additional_zones_len: usize = 1;
+    assert_eq!(additional_zones.len(), expected_additional_zones_len);
+
+    let expected_additional_zones_0_title: String = "\"380.0000 mT\"".to_string();
+    assert_eq!(additional_zones[0].title, expected_additional_zones_0_title);
+
+    let expected_additional_zones_0_no_of_vertices: i64 = 70;
+    assert_eq!(
+        additional_zones[0].no_of_vertices,
+        expected_additional_zones_0_no_of_vertices
+    );
+
+    let expected_additional_zones_0_no_of_elements: i64 = 200;
+    assert_eq!(
+        additional_zones[0].no_of_elements,
+        expected_additional_zones_0_no_of_elements
+    );
+
+    let expected_addition_zones_0_float_list_len: usize = 210;
+    assert_eq!(
+        additional_zones[0].float_list.len(),
+        expected_addition_zones_0_float_list_len
+    );
 }
