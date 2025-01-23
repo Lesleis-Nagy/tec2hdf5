@@ -1,6 +1,6 @@
 ///
-/// Spaghettification utility - this utility allows the user to paste a block of floating point
-/// numbers in to the terminal, these will then be split in to a single column list of the same
+/// Spaghettify utility - this utility allows the user to paste a block of floating point numbers
+/// in to the terminal, these will then be split into a single column list of the same
 /// numbers, for example:
 /// 1.0 2.0 3.0 4.0         1.0
 /// 5.0 6.0           ==>   2.0
@@ -53,9 +53,6 @@ fn main() -> io::Result<()> {
 
     match read_floats_from_input(&input) {
         Ok(floats) => {
-            println!("Parsed floats: {:?}", floats);
-            println!("Total floats: {}", floats.len());
-
             // Write the floats to the specified file
             let contents = floats
                 .iter()
@@ -64,7 +61,7 @@ fn main() -> io::Result<()> {
                 .join("\n");
             fs::write(output_file, contents)?;
 
-            println!("Floats successfully written to {}", output_file);
+            println!("{} floats successfully written to {}", floats.len(), output_file);
         }
         Err(e) => eprintln!("Error reading floats: {}", e),
     }
