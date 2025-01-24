@@ -1,4 +1,4 @@
-mod tecplot_parser;
+use tec2hdf5::tecplot_parser::{Document};
 
 use clap::{Arg, Command};
 
