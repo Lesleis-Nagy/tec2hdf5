@@ -1,0 +1,105 @@
+\documentclass{article}
+
+% For better formatting and more control over the document layout
+\usepackage{abstract}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{xfrac}
+\usepackage{mdframed}
+\usepackage[utf8]{inputenc}
+\usepackage{lipsum} % Package to generate dummy text (optional)
+\usepackage{float}
+\usepackage{graphicx} % For images
+\usepackage{bm}
+
+\setlength{\parindent}{0pt}  % Set paragraph indentation to 0
+\setlength{\parskip}{1em}    % Set the vertical space between paragraphs
+
+\newcommand{\mvec}[1]{\ensuremath{\mathfrak{#1}}}
+\newcommand{\mvecA}{\ensuremath{\mvec{A}}}
+\newcommand{\mvecB}{\ensuremath{\mvec{B}}}
+\newcommand{\mvecC}{\ensuremath{\mvec{C}}}
+\newcommand{\mvecD}{\ensuremath{\mvec{D}}}
+\newcommand{\mvecZero}{\ensuremath{\mvec{0}}}
+\newcommand{\mvecUnit}{\ensuremath{\mvec{1}}}
+
+\newcommand{\veca}{\ensuremath{\mathbf{a}}}
+\newcommand{\vecb}{\ensuremath{\mathbf{b}}}
+\newcommand{\vecc}{\ensuremath{\mathbf{c}}}
+\newcommand{\vecd}{\ensuremath{\mathbf{d}}}
+\newcommand{\vecZero}{\ensuremath{\mathbf{0}}}
+
+\newcommand{\bivA}{\ensuremath{\mathbf{A}}}
+\newcommand{\bivB}{\ensuremath{\mathbf{B}}}
+\newcommand{\bivC}{\ensuremath{\mathbf{C}}}
+\newcommand{\bivD}{\ensuremath{\mathbf{D}}}
+
+\renewcommand{\vec}[1]{\ensuremath{\bm{#1}}}
+
+\newcommand{\defn}{\ensuremath{\mathrm{def.}}}
+
+% Document begins here
+\begin{document}
+
+\subsection*{Theorem}
+Let $s(\vec{x})$ be the linear interpolation of the quantities $s_0$, $s_1$, $s_2$ and $s_3$  defined on the four tetrahedron vertices $\vec{x}_0$, $\vec{x}_1$, $\vec{x}_2$ and $\vec{x}_3$ so that
+\begin{align*}
+	 s(\vec{x}_0) = s_0, \;\;\; & s(\vec{x}_1) = s_1, \\ 
+	 s(\vec{x}_2) = s_2, \;\;\; & s(\vec{x}_3) = s_3.
+\end{align*}
+Then the integral of $s(\vec{x})$ over the tetrahedron is the mean of $s_i$ multiplied by the tetrahedron volume $V$, that is
+\begin{flalign*}
+	\int_\triangle s(\vec{x})\; d\vec{x} = V \left( \frac{s_0 + s_1 + s_2 + s_3}{4} \right).
+\end{flalign*}
+\subsection*{Proof}
+The standard tetrahedron is defined so that
+\begin{align*}
+\tilde{\vec{x}}_0 = \left< 0, 0, 0 \right>, \;\;\; & \tilde{\vec{x}}_1 = \left< 1, 0, 0 \right>, \\
+\tilde{\vec{x}}_2 = \left< 0, 1, 0 \right>, \;\;\; & \tilde{\vec{x}}_3 = \left< 0, 0, 1 \right>. 
+\end{align*}
+To map from the standard tetrahedron, with vertex coordinates denoted $\tilde{\vec{x}}$ to a general tetrahedron with vertex coordinates denoted $\vec{x}$ we use the mapping 
+\begin{flalign*}
+	\vec{x} = M\tilde{\vec{x}} + \vec{x}_0,
+\end{flalign*}
+where
+\begin{flalign*}
+M = \begin{pmatrix}
+		x_1 - x_0 & x_2 - x_0 & x_3 - x_0 \\
+		y_1 - y_0 & y_2 - y_0 & y_3 - y_0 \\
+   	    z_1 - z_0 & z_2 - z_0 & z_3 - z_0
+	\end{pmatrix}
+\end{flalign*}
+thus we have
+\begin{flalign*}
+	x_i = M_{ij}\tilde{x}_j+x_{i,0}
+\end{flalign*}
+The linear interpolation of four scalars defined at each vertex is
+\begin{flalign*}
+s(\vec{x}) = \lambda_0 s_0 + \lambda_1 s_1 + \lambda_2 s_2 + \lambda_3 s_3,	
+\end{flalign*}
+where $\lambda_i$ are the barycentric coordinates given by
+\begin{flalign*}
+	\vec{\lambda} = \mathcal{M}\left(\vec{x} - \vec{x}_0\right), 
+\end{flalign*}
+where $\mathcal{M} \equiv M^{-1}$, again
+\begin{flalign*}
+	\lambda_i = \mathcal{M}_{ij} x_j + \mathcal{M}_{ij}x_{j,0},
+\end{flalign*}
+for $i = 0, 1, 2$ and 
+\begin{flalign*}
+	\lambda_3 &= 1 - \lambda_0 - \lambda_1 - \lambda_2, \\
+	          &= 1 - \mathcal{M}_{0j} x_j - \mathcal{M}_{0j}x_{j,0}
+	               - \mathcal{M}_{1j} x_j - \mathcal{M}_{1j}x_{j,0}
+	               - \mathcal{M}_{2j} x_j - \mathcal{M}_{2j}x_{j,0}.
+\end{flalign*}
+Mapping the standard coordinates we use the substitution
+\begin{flalign*}
+	\lambda_{i} &= \mathcal{M}_{ij}\left( M_{jl}\tilde{x}_l + x_{j,0}\right) = \delta_{il}\tilde{x}_l + \mathcal{M}_{ij}x_{j,0}, \\
+	\lambda_3 &= 1 - 1_i\mathcal{M}_{ij}x_j - 1_i\mathcal{M}_{ij}x_{j,0} =
+	1 - 1_i\mathcal{M}_{ij} \left( M_{jl}\tilde{x}_l + x_{j,0}\right) - 1_i\mathcal{M}_{ij} \left<0,0,0\right> \\
+	&= 1 - 1_i\mathcal{M}_{ij} \left( M_{jl}\tilde{x}_l + x_{j,0}\right) = 1 - 1_i\delta_{il}\tilde{x}_l - 1_i\mathcal{M}_{ij}x_{j,0}
+\end{flalign*}
+
+
+\end{document}

@@ -25,7 +25,7 @@ use std::io::{self, Read};
 ///
 
 fn read_floats_from_input(input: &str) -> Result<Vec<f64>, Box<dyn std::error::Error>> {
-    // Split the input string by whitespace and parse each token as a float
+    // Split on whitespace treat each token as float
     let floats = input
         .split_whitespace() // Split on spaces, tabs, and newlines
         .map(|s| s.parse::<f64>()) // Attempt to parse each token as a float
@@ -42,7 +42,7 @@ fn read_floats_from_input(input: &str) -> Result<Vec<f64>, Box<dyn std::error::E
 ///
 
 fn read_integers_from_input(input: &str) -> Result<Vec<i64>, Box<dyn std::error::Error>> {
-    // Split the input string by whitespace and parse each token as an integer
+    // Split on whitespace treat each token as int
     let integers = input
         .split_whitespace() // Split on spaces, tabs, and newlines
         .map(|s| s.parse::<i64>()) // Attempt to parse each token as an integer
@@ -61,22 +61,23 @@ fn main() -> io::Result<()> {
     let output_file = &args[1];
     let parse_as_integers = args.get(2).map_or(false, |flag| flag == "--integers");
 
-    println!("Please paste a block of whitespace-delimited {} (you can include newlines) and press Ctrl+D (or Ctrl+Z on Windows) when done:",
-             if parse_as_integers { "integers" } else { "floats" });
+    println!(
+        "Paste whitespace-delimited {} (including newlines) & press Ctrl+D (Ctrl+Z on Windows)",
+             if parse_as_integers { "integers" } else { "floats" }
+    );
 
     let mut input = String::new();
-    io::stdin().read_to_string(&mut input)?; // Read multi-line user input
+    io::stdin().read_to_string(&mut input)?;
 
     if parse_as_integers {
         match read_integers_from_input(&input) {
             Ok(integers) => {
-                // println!("Parsed integers: {:?}", integers);
                 println!("Total integers: {}", integers.len());
 
-                // Write the integers to the specified file
+                // Write integers to file
                 let contents = integers
                     .iter()
-                    .map(|i| i.to_string()) // Convert each integer to a string
+                    .map(|i| i.to_string()) // Convert to int
                     .collect::<Vec<_>>()
                     .join("\n"); // Join with newlines
                 fs::write(output_file, contents)?;
@@ -88,13 +89,12 @@ fn main() -> io::Result<()> {
     } else {
         match read_floats_from_input(&input) {
             Ok(floats) => {
-                // println!("Parsed floats: {:?}", floats);
                 println!("Total floats: {}", floats.len());
 
-                // Write the floats to the specified file
+                // Write floats to file
                 let contents = floats
                     .iter()
-                    .map(|f| format!("{:.7E}", f)) // Format each float in scientific notation with 7 decimals
+                    .map(|f| format!("{:.7E}", f)) // sci. notation formatting (7 d.p.)
                     .collect::<Vec<_>>()
                     .join("\n"); // Join with newlines
                 fs::write(output_file, contents)?;

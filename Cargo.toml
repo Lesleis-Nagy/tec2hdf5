@@ -6,8 +6,9 @@ edition = "2021"
 [dependencies]
 clap = {version="4.5.26", features=["derive"]}
 hdf5 = { git = "https://github.com/aldanor/hdf5-rust.git" }
-ndarray = {version="0.16.1"}
 lalrpop-util = { version = "0.22.0", features = ["lexer", "unicode"] }
+quote = "1.0.38"
+syn = "2.0.96"
 
 [build-dependencies]
 lalrpop = "0.22.0"

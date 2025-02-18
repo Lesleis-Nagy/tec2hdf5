@@ -20,7 +20,7 @@ pub Lit: String = <l:r#""[a-zA-Z0-9_ \.]*""#> => l.to_string();
 // An integer is a sequence of characters '0' to '9', we accept integers with
 // an arbitrary number of preceding zeros as valid and equivalent for example
 // 09 == 00009 == 9).
-pub Integer: i64 = <s:r#"[0-9]+"#> => i64::from_str(s).unwrap();
+pub Integer: usize = <s:r#"[0-9]+"#> => usize::from_str(s).unwrap();
 
 // A floating point value contains a decimal point and optional exponent.
 pub Float: f64 = <s:r#"[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?"#> => f64::from_str(s).unwrap();
@@ -36,7 +36,7 @@ pub LitList: Vec<String> = {
 };
 
 // A list of Integer objects (see above).
-pub IntegerList: Vec<i64> = {
+pub IntegerList: Vec<usize> = {
     <head: Integer> <tail: IntegerList> => {
         let mut list = vec![head];
         list.extend(tail);
@@ -128,12 +128,12 @@ pub ZoneWithTitle: String = {
 };
 
 // A rule to match the keyword N and an integer.
-pub NValue: i64 = {
+pub NValue: usize = {
     "N" "=" <v:Integer> => v
 };
 
 // A rule to match the keyword E and an integer.
-pub EValue: i64 = {
+pub EValue: usize = {
     "E" "=" <v:Integer> => v
 };
 
@@ -160,6 +160,6 @@ pub VarShareList: String = {
 };
 
 // A rule to match the keyword CONNECTIVITYSHAREZONE.
-pub ConnectivityShareZone: i64 = {
+pub ConnectivityShareZone: usize = {
     "CONNECTIVITYSHAREZONE" "=" <z:Integer> => z
 };
