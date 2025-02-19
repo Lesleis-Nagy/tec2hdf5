@@ -7,6 +7,7 @@ edition = "2021"
 clap = {version="4.5.26", features=["derive"]}
 hdf5 = { git = "https://github.com/aldanor/hdf5-rust.git" }
 lalrpop-util = { version = "0.22.0", features = ["lexer", "unicode"] }
+regex = {version = "1.11.1"}
 quote = "1.0.38"
 syn = "2.0.96"
 

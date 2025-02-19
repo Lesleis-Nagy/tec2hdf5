@@ -729,6 +729,7 @@ dependencies = [
  "lalrpop",
  "lalrpop-util",
  "quote",
+ "regex",
  "syn",
 ]
 

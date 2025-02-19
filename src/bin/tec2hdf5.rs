@@ -9,10 +9,9 @@ struct CliArgs {
 }
 
 fn parse_args() -> CliArgs {
-
     let matches = Command::new("tec2hdf5")
         .version("1.0")
-        .author("Lesleis Nagy <lesnagy@liverpool.ac.uk>")
+        .author("Les Nagy <lesleisnagy@gmail.com>")
         .about("A simple tool to read tecplot files and produce MERRILL compatible HDF5 files")
         .arg(
             Arg::new("tecplot_file")
@@ -39,7 +38,6 @@ fn parse_args() -> CliArgs {
         output_basename: matches.get_one::<String>("output_basename").unwrap().to_string(),
         with_xdmf: matches.get_one::<bool>("with_xdmf").copied().unwrap_or(false),
     }
-
 }
 
 fn main() {
