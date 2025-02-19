@@ -64,6 +64,9 @@ fn main() {
     }
 
     loop_files.sort();
-    
-    println!("loop files: {:?}", loop_files);
+
+    println!("Processing {} loop files", loop_files.len());
+    for loop_file in loop_files {
+        println!("\t{}", loop_file.to_str().unwrap());
+    }
 }

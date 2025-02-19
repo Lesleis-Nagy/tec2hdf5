@@ -99,7 +99,6 @@ pub fn tet_lin_scal_integral(
     v * (s0 + s1 + s2 + s3) / 4.0
 }
 
-
 ///
 /// Calculates the integral of a linearly interpolated vector field over a tetrahedron in 3D space.
 ///
