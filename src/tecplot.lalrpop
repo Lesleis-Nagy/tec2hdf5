@@ -15,7 +15,7 @@ grammar;
 
 // A string is defined as a limited list of characters (alpha-numeric along with
 // '_', ' ' & '.') delimited by a start/end '"' caracter.
-pub Lit: String = <l:r#""[a-zA-Z0-9_ \.]*""#> => l.to_string();
+pub Lit: String = <l:r#""[a-zA-Z0-9_\- \.\\\/]*""#> => l.to_string();
 
 // An integer is a sequence of characters '0' to '9', we accept integers with
 // an arbitrary number of preceding zeros as valid and equivalent for example
