@@ -71,7 +71,7 @@ pub struct Zone {
 ///
 /// Create a Mesh object from a tecplot file.
 ///
-fn create_mesh_from_tecplot(file: &str) -> Mesh {
+pub fn create_mesh_from_tecplot(file: &str) -> Mesh {
     let file_contents = fs::read_to_string(file).expect("Failed to read tecplot file");
 
     let mut document = tecplot::DocumentParser::new()
@@ -188,6 +188,7 @@ fn create_mesh_from_tecplot(file: &str) -> Mesh {
         submesh_indices: submesh_indices,
         fields: fields,
         volume: None,
+        net_moments: None,
     }
 }
 

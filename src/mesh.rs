@@ -1,4 +1,7 @@
-use crate::geometry::tet_volume;
+use crate::geometry::{
+    tet_volume,
+    tet_lin_vec_integral
+};
 
 /// Represents a vector field associated with a mesh, containing a label and a collection of 3D
 /// vectors.
@@ -9,7 +12,7 @@ use crate::geometry::tet_volume;
 /// # Fields
 ///
 /// * `label` - A string identifier for the field.
-/// * `vectors` - A vector of 3D points (represented as arrays of three `f64` values), 
+/// * `vectors` - A vector of 3D points (represented as arrays of three `f64` values),
 ///               holding the information associated with the field.
 pub struct Field {
     pub label: String,
@@ -22,14 +25,14 @@ pub struct Field {
 /// # Fields
 ///
 /// * `label` - A string identifier for the mesh.
-/// * `vertices` - A vector of 3D points (represented as arrays of three `f64` values), 
+/// * `vertices` - A vector of 3D points (represented as arrays of three `f64` values),
 ///                representing the geometry of the mesh.
 /// * `elements` - A vector of elements (represented as arrays of four `usize` values),
 ///                where each element connects four vertices, defining the connectivity of the mesh.
 /// * `submesh_indices` - A vector of indices indicating subdivisions of the mesh into submeshes.
 /// * `fields` - A vector of `Field` structs holding additional information associated with the mesh,
 ///              such as vector fields or other data.
-/// * `volume` - An optional precomputed volume of the mesh (if available). If `None`, 
+/// * `volume` - An optional precomputed volume of the mesh (if available). If `None`,
 ///              the volume can be computed using the appropriate method.
 ///
 /// The `Mesh` struct provides methods for creating new meshes, as well as computing derived
@@ -42,6 +45,7 @@ pub struct Mesh {
     pub submesh_indices: Vec<usize>,
     pub fields: Vec<Field>,
     pub volume: Option<f64>,
+    pub net_moments: Option<Vec<[f64; 3]>>,
 }
 
 impl Mesh {
@@ -73,41 +77,13 @@ impl Mesh {
         fields: Vec<Field>,
     ) -> Mesh {
         Mesh {
-            label, vertices, elements, submesh_indices, fields,
+            label,
+            vertices,
+            elements,
+            submesh_indices,
+            fields,
             volume: None,
-        }
-    }
-    
-    ///
-    /// Computes or retrieves the volume of the mesh.
-    ///
-    /// # Returns
-    ///
-    /// Returns the volume of the mesh as an `f64`.
-    ///
-    /// If the volume has already been computed, it returns the cached value.
-    /// Otherwise, it computes the volume using the `compute_volume` method,
-    /// caches the result, and then returns it.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// let mut mesh = Mesh::new(
-    ///     String::from("example"),
-    ///     vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
-    ///     vec![[0, 1, 2, 3]],
-    ///     vec![],
-    ///     vec![],
-    /// );
-    /// let volume = mesh.volume();
-    /// println!("Volume: {}", volume);
-    /// ```
-    ///
-    pub fn volume(&mut self) -> f64 {
-        if self.volume.is_some() {
-            self.volume.unwrap()
-        } else {
-            self.compute_volume()
+            net_moments: None,
         }
     }
 
@@ -144,8 +120,8 @@ impl Mesh {
     /// println!("Volume: {}", volume);
     /// ```
     ///
-    fn compute_volume(&mut self) -> f64 {
-        let mut volume : f64 = 0.0;
+    pub fn compute_volume(&mut self) {
+        let mut volume: f64 = 0.0;
         for element in &self.elements {
             let v0: &[f64; 3] = &self.vertices[element[0]];
             let v1: &[f64; 3] = &self.vertices[element[1]];
@@ -154,6 +130,28 @@ impl Mesh {
             volume += tet_volume(*v0, *v1, *v2, *v3);
         }
         self.volume = Some(volume);
-        volume
+    }
+
+    pub fn compute_net_moments(&mut self)  {
+        let mut net_moments: Vec<[f64; 3]> = Vec::new();
+        for field in &self.fields {
+            let mut net_moment: [f64; 3] = [0.0, 0.0, 0.0];
+            for element in &self.elements {
+                let v0: &[f64; 3] = &self.vertices[element[0]];
+                let v1: &[f64; 3] = &self.vertices[element[1]];
+                let v2: &[f64; 3] = &self.vertices[element[2]];
+                let v3: &[f64; 3] = &self.vertices[element[3]];
+                let f0: &[f64; 3] = &field.vectors[element[0]];
+                let f1: &[f64; 3] = &field.vectors[element[1]];
+                let f2: &[f64; 3] = &field.vectors[element[2]];
+                let f3: &[f64; 3] = &field.vectors[element[3]];
+                let moment = tet_lin_vec_integral(*v0, *v1, *v2, *v3, *f0, *f1, *f2, *f3);
+                net_moment[0] += moment[0];
+                net_moment[1] += moment[1];
+                net_moment[2] += moment[2];
+            }
+            net_moments.push(net_moment);
+        }
+        self.net_moments = Some(net_moments);
     }
 }
