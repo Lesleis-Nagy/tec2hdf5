@@ -1,7 +1,9 @@
-use std::fs;
-use std::path::Path;
-use regex::Regex;
 use clap::{Arg, Command};
+use regex::Regex;
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use tec2hdf5::hysteresis_loops::read_loop_files;
 
 struct CliArgs {
     base_directory: String,
@@ -35,11 +37,19 @@ fn parse_args() -> CliArgs {
         .get_matches();
 
     CliArgs {
-        base_directory: matches.get_one::<String>("base_directory").unwrap().to_string(),
-        loop_file_match: matches.get_one::<String>("loop_file_match").unwrap().to_string(),
-        output_file: matches.get_one::<String>("output_file").unwrap().to_string(),
+        base_directory: matches
+            .get_one::<String>("base_directory")
+            .unwrap()
+            .to_string(),
+        loop_file_match: matches
+            .get_one::<String>("loop_file_match")
+            .unwrap()
+            .to_string(),
+        output_file: matches
+            .get_one::<String>("output_file")
+            .unwrap()
+            .to_string(),
     }
-
 }
 
 fn main() {
@@ -64,9 +74,31 @@ fn main() {
     }
 
     loop_files.sort();
-
     println!("Processing {} loop files", loop_files.len());
-    for loop_file in loop_files {
+    for loop_file in &loop_files {
         println!("\t{}", loop_file.to_str().unwrap());
+    }
+
+    // Reinterpret loop_files as an array of strings.
+    let loop_files = loop_files
+        .into_iter()
+        .filter_map(|path| path.to_str().map(String::from))
+        .collect();
+
+    let loop_stack = read_loop_files(&loop_files).unwrap();
+    let avg_loop = loop_stack.average();
+
+    // Print header
+    println!(
+        "{:>15}, {:>15}, {:>15}, {:>15}",
+        "B (Tesla)", "<M> (Am^2)", "Ms (A/m)", "Volume (m^3)"
+    );
+
+    // Print body
+    for (i, loop_value) in avg_loop.iter().enumerate() {
+        println!(
+            "{:>15.8E}, {:>15.8E}, {:>15.8E}, {:>15.8E}",
+            loop_value.b, loop_value.m, loop_value.ms, loop_value.vol
+        );
     }
 }
