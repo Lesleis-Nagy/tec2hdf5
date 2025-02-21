@@ -63,8 +63,8 @@ pub struct Zone {
     /// The number of elements parsed from the zone's header.
     pub no_of_elements: usize,
 
-    // The list of floating point values found in the zone -- this is just a large list of floating
-    // point values which must be processed further to represent field vector values.
+    /// The list of floating point values found in the zone -- this is just a large list of floating
+    /// point values which must be processed further to represent field vector values.
     pub float_list: Vec<f64>,
 }
 

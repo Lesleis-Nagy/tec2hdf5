@@ -762,10 +762,9 @@ dependencies = [
  "hdf5",
  "lalrpop",
  "lalrpop-util",
- "quote",
+ "ndarray",
  "regex",
  "serde",
- "syn",
 ]
 
 [[package]]

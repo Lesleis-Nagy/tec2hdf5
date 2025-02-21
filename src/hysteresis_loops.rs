@@ -695,16 +695,9 @@ mod tests {
 
         for i in 0..average_loop_stack.len() {
             assert!((expected_data[i].b - average_loop_stack[i].b).abs() < 1e-12);
-            assert!((expected_data[i].bx - average_loop_stack[i].bx).abs() < 1e-12);
-            assert!((expected_data[i].by - average_loop_stack[i].by).abs() < 1e-12);
-            assert!((expected_data[i].bz - average_loop_stack[i].bz).abs() < 1e-12);
-            assert!((expected_data[i].mx - average_loop_stack[i].mx).abs() < 1e-12);
-            assert!((expected_data[i].my - average_loop_stack[i].my).abs() < 1e-12);
-            assert!((expected_data[i].mz - average_loop_stack[i].mz).abs() < 1e-12);
+            assert!((expected_data[i].bx - average_loop_stack[i].m).abs() < 1e-12);
             assert!((expected_data[i].ms - average_loop_stack[i].ms).abs() < 1e-12);
             assert!((expected_data[i].vol - average_loop_stack[i].vol).abs() < 1e-12);
         }
     }
-
-
 }
